@@ -34,8 +34,9 @@ class Excel:
         self.choices = choices or {}
         self.fields = [
             field
-            for field in self.model._meta.fields
-            if field.name not in self.exclude
+            for field in self.model._meta.get_fields()
+            if not (field.many_to_many and field.auto_created)
+            and field.name not in self.exclude
         ]
 
         self.processor = Processor(
@@ -62,12 +63,15 @@ class Excel:
                 if value is None:
                     value = '-'
 
+                if isinstance(field, models.ManyToManyField):
+                    processor = self.processor._process_many_to_many
                 else:
                     processor = self.processor.field_processors.get(
                         type(field),
                         self.processor._process_choices,
                     )
-                    value = processor(field, value, item)
+
+                value = processor(field, value, item)
 
                 values.append(value)
             data.append(values)

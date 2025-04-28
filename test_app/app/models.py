@@ -30,6 +30,28 @@ def generate_unique_number():
     )
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Category Name')
+
+    class Meta:
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Tags(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Tag Name')
+
+    class Meta:
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Report(models.Model):
     report_num = models.PositiveBigIntegerField(
         unique=True,
@@ -44,6 +66,17 @@ class Report(models.Model):
     priority = models.IntegerField(
         choices=Priority.choices,
         verbose_name='Priority',
+    )
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name='report_category',
+        verbose_name='Category',
+    )
+    tag = models.ManyToManyField(
+        Tags,
+        related_name='report_tag',
+        verbose_name='Tags',
     )
     name = models.CharField(max_length=255, verbose_name='Report Name')
     status_report = models.CharField(
