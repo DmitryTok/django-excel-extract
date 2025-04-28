@@ -7,6 +7,8 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+MANIFEST.in
+setup.cfg
 dist/
 django_excel_extract.egg-info/
 .Python
