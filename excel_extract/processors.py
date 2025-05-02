@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 
 class Processor:
@@ -28,7 +29,7 @@ class Processor:
             models.ManyToManyField: self._process_many_to_many,
         }
 
-    def _init_display_methods(self) -> set[str]:
+    def _display_choices(self) -> set[str]:
         if not hasattr(self, 'model'):
             return set()
 
@@ -44,9 +45,18 @@ class Processor:
     def _process_date(
         self, field: models.Field, value: str, item: models.Model
     ) -> str:
+        print(value)
+        print(type(value))
+        print(self.date_format)
+        if value == '-':
+            return value
+
         if self.date_format:
-            return value.strftime(self.date_format)
-        return value.strftime('%Y-%m-%d')
+            if isinstance(value, str):
+                value = datetime.strptime(value, self.date_format)
+                return value.strftime(self.date_format)
+            else:
+                return value.strftime(self.date_format)
 
     def _process_datetime(
         self, field: models.Field, value: str, item: models.Model

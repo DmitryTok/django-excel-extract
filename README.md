@@ -1,7 +1,7 @@
 # django-excel-extract
 
 ![PyPI download month](https://img.shields.io/pypi/dm/django-excel-extract.svg)
-[![PyPI version](https://badge.fury.io/py/django-excel-extract.svg)](https://pypi.python.org/pypi/django-excel-extract/)
+![PyPI version](https://badge.fury.io/py/django-excel-extract.svg)
 ![Python versions](https://img.shields.io/badge/python-%3E=3.9-brightgreen)
 ![Django Versions](https://img.shields.io/badge/django-%3E=4.2-brightgreen)
 
@@ -28,9 +28,7 @@ pip install django-excel-extract
 
 ---
 
-## Usage
-
-### Basic Example
+# Usage
 
 You must use the Excel class to generate and export an Excel file.
 
@@ -46,8 +44,8 @@ You must use the Excel class to generate and export an Excel file.
 - **exclude** (`list[str]`, optional) — List of field names to exclude from export.
 - **date_format** (`str`, optional) — Format string for date fields (e.g., `'%d/%m/%Y'`).
 - **date_time_format** (`str`, optional) — Format string for datetime fields (e.g., `'%d/%m/%Y %H:%M'`).
-- **bool_true** (`str`, optional) — Text representation for boolean `True` values (default: `'True`).
-- **bool_false** (`str`, optional) — Text representation for boolean `False` values (default: `'False`).
+- **bool_true** (`str`, optional) — Text representation for boolean `True` values (default: `'True'`).
+- **bool_false** (`str`, optional) — Text representation for boolean `False` values (default: `'False'`).
 
 ### Examples
 

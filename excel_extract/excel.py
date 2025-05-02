@@ -1,8 +1,4 @@
-import io
-import pandas as pd
-
 from django.db import models
-from django.http import HttpResponse
 from excel_extract.processors import Processor
 from excel_extract.response import ExcelResponse
 
@@ -35,7 +31,15 @@ class Excel:
         self.fields = [
             field
             for field in self.model._meta.get_fields()
-            if not (field.many_to_many and field.auto_created)
+            if not isinstance(
+                field,
+                (
+                    models.ManyToOneRel,
+                    models.ManyToManyRel,
+                    models.OneToOneRel,
+                ),
+            )
+            and not (field.many_to_many and field.auto_created)
             and field.name not in self.exclude
         ]
 
