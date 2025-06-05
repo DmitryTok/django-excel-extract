@@ -1,6 +1,7 @@
 from django.db import models
 from excel_extract.processors import Processor
 from excel_extract.response import ExcelResponse
+from collections.abc import Iterable
 
 
 class Excel:
@@ -19,7 +20,7 @@ class Excel:
         bool_false: str = None,
     ) -> None:
         self.model = model
-        self.queryset = queryset
+        self.queryset = self._get_queryset(queryset)
         self.exclude = set(exclude or [])
         self.file_name = file_name
         self.title = title
@@ -42,6 +43,10 @@ class Excel:
             and not (field.many_to_many and field.auto_created)
             and field.name not in self.exclude
         ]
+        self.fields_map = {
+            field.name: field.verbose_name for field in self.fields
+        }
+        self.verbose_name_fields = []
 
         self.processor = Processor(
             date_format=self.date_format,
@@ -52,8 +57,19 @@ class Excel:
             exclude=exclude,
         )
 
-    def get_fields(self) -> list[str]:
-        return [str(field.verbose_name) for field in self.fields]
+    def _get_queryset(self, queryset):
+        if isinstance(queryset, models.QuerySet):
+            return queryset
+
+        elif isinstance(queryset, Iterable) and not isinstance(
+            queryset, (str, bytes)
+        ):
+            return queryset
+
+        return [queryset]
+
+    def get_fields(self):
+        return [item for item in self.verbose_name_fields]
 
     def get_data_frame(self) -> list[list[str]]:
         data = []
@@ -61,24 +77,43 @@ class Excel:
         for item in self.queryset:
             values = []
 
-            for field in self.fields:
-                value = getattr(item, field.name)
+            if isinstance(item, dict):
+                for field, value in item.items():
+                    if field in self.fields_map and field not in self.exclude:
+                        field_obj = self.fields_map[field]
 
-                if value is None:
-                    value = '-'
+                        if field_obj not in self.verbose_name_fields:
+                            self.verbose_name_fields.append(field_obj)
 
-                if isinstance(field, models.ManyToManyField):
-                    processor = self.processor._process_many_to_many
-                else:
+                        processor = self.processor.field_processors.get(
+                            type(field_obj)
+                        )
+
+                        if processor:
+                            value = processor(field_obj, value)
+
+                        values.append(value)
+
+                data.append(values)
+
+            else:
+                for field in self.fields:
+
+                    if field.verbose_name not in self.verbose_name_fields:
+                        self.verbose_name_fields.append(field.verbose_name)
+
+                    value = getattr(item, field.name, None)
+
                     processor = self.processor.field_processors.get(
-                        type(field),
-                        self.processor._process_choices,
+                        type(field)
                     )
 
-                value = processor(field, value, item)
+                    if processor:
+                        value = processor(field, value)
 
-                values.append(value)
-            data.append(values)
+                    values.append(value)
+
+                data.append(values)
 
         return data
 
@@ -87,6 +122,7 @@ class Excel:
             data=self.get_data_frame(),
             columns=self.get_fields(),
         )
+
         return excel_response.excel_response(
             file_name=self.file_name, title=self.title
         )

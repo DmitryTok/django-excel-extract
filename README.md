@@ -40,7 +40,6 @@ You must use the Excel class to generate and export an Excel file.
 - **queryset** (`QuerySet`) — Django queryset containing the data to export.
 - **file_name** (`str`, optional) — Name of the generated file (default: `'file_name'`).
 - **title** (`str`, optional) — Sheet title inside the Excel file (default: `'title`).
-- **choices** (`dict`, optional) — Dictionary for converting Django `choices` fields into human-readable text.
 - **exclude** (`list[str]`, optional) — List of field names to exclude from export.
 - **date_format** (`str`, optional) — Format string for date fields (e.g., `'%d/%m/%Y'`).
 - **date_time_format** (`str`, optional) — Format string for datetime fields (e.g., `'%d/%m/%Y %H:%M'`).
@@ -167,15 +166,10 @@ def index(request):
 def extract_excel(request):
     queryset = Report.objects.all()
     exclude = ['id']
-    choices = {
-        'status_report': {item.name: item.value for item in StatusReport},
-        'type_report': {item.name: item.value for item in TypeReport},
-    }
 
     excel = Excel(
         model=Report,
         queryset=queryset,
-        choices=choices,
         file_name='report',
         title='Report',
         exclude=exclude,

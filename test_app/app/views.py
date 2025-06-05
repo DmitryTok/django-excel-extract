@@ -10,20 +10,21 @@ def index(request):
 
 def extract_excel(request):
     queryset = Report.objects.all()
+    # queryset = Report.objects.get(id=1)
+    # queryset = Report.objects.filter(id=1)
+    # queryset = Report.objects.values(
+    #     'id', 'report_num', 'status_report', 'type_report'
+    # )
+
     exclude = ['id']
-    choices = {
-        'status_report': {item.name: item.value for item in StatusReport},
-        'type_report': {item.name: item.value for item in TypeReport},
-    }
 
     excel = Excel(
         model=Report,
         queryset=queryset,
-        choices=choices,
         file_name='report',
         title='Report',
         exclude=exclude,
-        date_time_format='%d/%m/%Y %H:%M',
+        date_time_format='%d/%m/%Y',
     )
 
     return excel.to_excel()

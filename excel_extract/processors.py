@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from collections.abc import Iterable
 
 
 class Processor:
@@ -19,35 +20,21 @@ class Processor:
         self.exclude = set(exclude or [])
         self.choices = choices or {}
         self.field_processors = self._generate_field_processors()
-        self.display_choices = self._display_choices()
 
     def _generate_field_processors(self):
         return {
+            models.PositiveBigIntegerField: self._process_integer,
+            models.CharField: self._process_charfield,
             models.DateField: self._process_date,
             models.BooleanField: self._process_boolean,
             models.DateTimeField: self._process_datetime,
             models.ManyToManyField: self._process_many_to_many,
         }
 
-    def _display_choices(self) -> set[str]:
-        if not hasattr(self, 'model'):
-            return set()
+    def _process_integer(self, field: models.Field, value: str) -> str:
+        return value
 
-        display_fields = set()
-
-        for field in self.model._meta.fields:
-            display_method_name = f"get_{field.name}_display"
-            if hasattr(self.model, display_method_name):
-                display_fields.add(field.name)
-
-        return display_fields
-
-    def _process_date(
-        self, field: models.Field, value: str, item: models.Model
-    ) -> str:
-        print(value)
-        print(type(value))
-        print(self.date_format)
+    def _process_date(self, field: models.Field, value: str) -> str:
         if value == '-':
             return value
 
@@ -58,36 +45,26 @@ class Processor:
             else:
                 return value.strftime(self.date_format)
 
-    def _process_datetime(
-        self, field: models.Field, value: str, item: models.Model
-    ) -> str:
+    def _process_datetime(self, field: models.Field, value: str) -> str:
         if self.date_time_format:
             return value.strftime(self.date_time_format)
         return value.strftime('%Y-%m-%d %H:%M:%S')
 
-    def _process_boolean(
-        self, field: models.Field, value: bool, item: models.Model
-    ) -> str:
+    def _process_boolean(self, field: models.Field, value: bool) -> str:
         if self.bool_true and self.bool_false:
             return self.bool_true if value else self.bool_false
 
-    def _process_many_to_many(
-        self, field: models.Field, value: str, item: models.Model
-    ) -> str:
-        if field.name in self.exclude:
+    def _process_charfield(self, field: models.Field, value: str):
+        if not field.choices:
             return value
-        if not item.pk:
-            return ''
 
-        many_to_many = getattr(item, field.name).all()
-        return ', '.join(str(related_item) for related_item in many_to_many)
+        else:
+            value = dict(field.choices).get(value, '-')
+            return value
 
-    def _process_choices(
-        self, field: models.Field, value: str, item: models.Model
+    def _process_many_to_many(
+        self, field: models.Field, value: Iterable
     ) -> str:
-        return (
-            getattr(item, f'get_{field.name}_display')()
-            if field.name in self.display_choices
-            and field.name not in self.exclude
-            else value
-        )
+        if not value:
+            return '-'
+        return ', '.join(str(item) for item in value.all())
