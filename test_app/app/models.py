@@ -22,11 +22,11 @@ class Priority(models.IntegerChoices):
     MEDIUM = 2, 'Medium'
     HIGH = 3, 'High'
 
-
 def generate_unique_number():
-    date_now = dt.datetime.now(pytz.timezone('Europe/London'))
+    date_now = dt.datetime.now(pytz.UTC)
     return int(
-        f'{date_now.day}{date_now.month}{date_now.year % 1000}{date_now.hour}{date_now.minute}{date_now.microsecond}'
+        f'{date_now.year % 100:02}{date_now.month:02}{date_now.day:02}'
+        f'{date_now.hour:02}{date_now.minute:02}{date_now.second:02}{date_now.microsecond // 1000:03}'
     )
 
 
