@@ -5,6 +5,8 @@ import pandas as pd
 
 from django.http import HttpResponse
 
+DEBUG=False
+
 
 class ExcelResponse(HttpResponse):
 
@@ -15,10 +17,17 @@ class ExcelResponse(HttpResponse):
     ):
         self.data = data
         self.columns = columns
+        assert columns, "Must provide columns to generate excel file."
 
     def excel_response(self, file_name: str, title: str) -> HttpResponse:
         data = self.data
         columns = self.columns
+
+        if DEBUG:
+            data = list(self.data)
+            print(columns)
+            for i, v in enumerate(data[:5],1):
+                print(i, v)
 
         df = pd.DataFrame(data, columns=columns)
 
