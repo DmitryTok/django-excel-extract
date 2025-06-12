@@ -1,37 +1,84 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from app.models import Report, StatusReport, TypeReport, Priority
+from app.models import Report
 from excel_extract.excel import Excel
-from django.db.models import ExpressionWrapper, F, DurationField
-from django.db.models.functions import Now
 
 
 def index(request):
     return render(request, 'index.html', {})
 
 
-def extract_excel(request):
-    # queryset = Report.objects.values('priority', 'type_report')
+def extract_excel_get(request):
     queryset = Report.objects.get(id=1)
-    # queryset = Report.objects.filter(id=1)
-    # queryset = Report.objects.values(
-    #     'id', 'report_num', 'status_report', 'type_report', 'priority'
-    # )
 
     exclude = ['id']
 
     excel = Excel(
         model=Report,
         queryset=queryset,
-        file_name='report',
+        file_name='report_get',
         title='Report',
         exclude=exclude,
         date_time_format='%d/%m/%Y',
     )
 
-    # excel.get_data_frame()
+    return excel.to_excel()
 
-    # return HttpResponse('Test')
+
+def extract_excel_filter(request):
+    queryset = Report.objects.filter(id=1)
+
+    exclude = ['id']
+
+    excel = Excel(
+        model=Report,
+        queryset=queryset,
+        file_name='report_filter',
+        title='Report',
+        exclude=exclude,
+        date_time_format='%d/%m/%Y',
+    )
 
     return excel.to_excel()
+
+
+def extract_excel_values(request):
+    queryset = Report.objects.values(
+        'id', 'report_num', 'status_report', 'type_report', 'priority'
+    )
+
+    exclude = ['id']
+
+    excel = Excel(
+        model=Report,
+        queryset=queryset,
+        file_name='report_values',
+        title='Report',
+        exclude=exclude,
+        date_time_format='%d/%m/%Y',
+    )
+
+    return excel.to_excel()
+
+
+def extract_excel_values_list(request):
+    queryset = Report.objects.values_list(
+        'report_num', 'status_report', 'type_report', 'priority'
+    )
+
+    exclude = ['id']
+
+    excel = Excel(
+        model=Report,
+        queryset=queryset,
+        file_name='report_values_list',
+        title='Report',
+        exclude=exclude,
+        date_time_format='%d/%m/%Y',
+    )
+
+    print(excel.get_data_frame())
+
+    return HttpResponse('Test')
+    # return excel.to_excel()
