@@ -1,3 +1,5 @@
+from typing import Generator
+
 from django.db import models
 from excel_extract.processors import Processor
 from excel_extract.response import ExcelResponse
@@ -71,8 +73,7 @@ class Excel:
     def get_fields(self):
         return [item for item in self.verbose_name_fields]
 
-    def get_data_frame(self) -> list[list[str]]:
-        data = []
+    def get_data_frame(self) -> Generator[list[str], None, None]:
 
         for item in self.queryset:
             values = []
@@ -94,7 +95,7 @@ class Excel:
 
                         values.append(value)
 
-                data.append(values)
+                yield values
 
             else:
                 for field in self.fields:
@@ -113,9 +114,8 @@ class Excel:
 
                     values.append(value)
 
-                data.append(values)
+                yield values
 
-        return data
 
     def to_excel(self):
         excel_response = ExcelResponse(

@@ -1,4 +1,6 @@
 import io
+from typing import Generator
+
 import pandas as pd
 
 from django.http import HttpResponse
@@ -8,7 +10,7 @@ class ExcelResponse(HttpResponse):
 
     def __init__(
         self,
-        data: list[list[str]],
+        data: Generator[list[str], None, None],
         columns: list[str],
     ):
         self.data = data
