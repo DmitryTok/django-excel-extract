@@ -14,6 +14,7 @@ def index(request):
 def extract_excel(request):
     # queryset = Report.objects.values('priority', 'type_report')
     queryset = Report.objects.get(id=1)
+    # queryset = Report.objects.all()
     # queryset = Report.objects.filter(id=1)
     # queryset = Report.objects.values(
     #     'id', 'report_num', 'status_report', 'type_report', 'priority'
