@@ -1,3 +1,5 @@
+from typing import Generator
+
 from django.db import models
 from excel_extract.processors import Processor
 from excel_extract.response import ExcelResponse
@@ -44,9 +46,9 @@ class Excel:
             and field.name not in self.exclude
         ]
         self.fields_map = {
-            field.name: field.verbose_name for field in self.fields
+            field.name: field.verbose_name for field in self.fields if field.name not in self.exclude
         }
-        self.verbose_name_fields = []
+        self.verbose_name_fields = self.fields_map.values()
 
         self.processor = Processor(
             date_format=self.date_format,
@@ -71,20 +73,15 @@ class Excel:
     def get_fields(self):
         return [item for item in self.verbose_name_fields]
 
-    def get_data_frame(self) -> list[list[str]]:
-        data = []
-
+    def get_data_frame(self) -> Generator[list[str], None, None]:
         for item in self.queryset:
             values = []
 
             if isinstance(item, dict):
                 for field, value in item.items():
-                    if field in self.fields_map and field not in self.exclude:
+                    if field in self.fields_map:
                         field_obj = self.fields_map[field]
-
-                        if field_obj not in self.verbose_name_fields:
-                            self.verbose_name_fields.append(field_obj)
-
+                        
                         processor = self.processor.field_processors.get(
                             type(field_obj)
                         )
@@ -94,14 +91,10 @@ class Excel:
 
                         values.append(value)
 
-                data.append(values)
+                yield values
 
             else:
                 for field in self.fields:
-
-                    if field.verbose_name not in self.verbose_name_fields:
-                        self.verbose_name_fields.append(field.verbose_name)
-
                     value = getattr(item, field.name, None)
 
                     processor = self.processor.field_processors.get(
@@ -113,9 +106,7 @@ class Excel:
 
                     values.append(value)
 
-                data.append(values)
-
-        return data
+                yield values
 
     def to_excel(self):
         excel_response = ExcelResponse(
