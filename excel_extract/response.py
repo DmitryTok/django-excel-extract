@@ -6,18 +6,13 @@ from django.http import HttpResponse
 
 class ExcelResponse(HttpResponse):
 
-    def __init__(
+    def excel_response(
         self,
+        file_name: str,
+        title: str,
         data: list[list[str]],
         columns: list[str],
-    ):
-        self.data = data
-        self.columns = columns
-
-    def excel_response(self, file_name: str, title: str) -> HttpResponse:
-        data = self.data
-        columns = self.columns
-
+    ) -> HttpResponse:
         df = pd.DataFrame(data, columns=columns)
 
         with io.BytesIO() as buffer:
