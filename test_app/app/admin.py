@@ -1,5 +1,5 @@
+from app.models import Category, Report, Tags
 from django.contrib import admin
-from app.models import Report, Category, Tags
 
 
 @admin.register(Report)

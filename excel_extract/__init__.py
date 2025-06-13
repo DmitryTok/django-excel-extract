@@ -1,1 +1,1 @@
-from .excel import Excel
+from .excel import Excel  # noqa

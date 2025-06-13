@@ -1,6 +1,7 @@
-from django.db import models
-from datetime import datetime
 from collections.abc import Iterable
+from datetime import datetime
+
+from django.db import models
 
 
 class Processor:
@@ -10,7 +11,6 @@ class Processor:
         date_time_format: str = None,
         bool_true: str = None,
         bool_false: str = None,
-        choices: dict = None,
         exclude: list[str] = None,
     ):
         self.date_format = date_format
@@ -18,12 +18,12 @@ class Processor:
         self.bool_true = bool_true
         self.bool_false = bool_false
         self.exclude = set(exclude or [])
-        self.choices = choices or {}
         self.field_processors = self._generate_field_processors()
 
     def _generate_field_processors(self):
         return {
             models.PositiveBigIntegerField: self._process_integer,
+            models.IntegerField: self._process_integer,
             models.CharField: self._process_charfield,
             models.DateField: self._process_date,
             models.BooleanField: self._process_boolean,
@@ -32,7 +32,12 @@ class Processor:
         }
 
     def _process_integer(self, field: models.Field, value: str) -> str:
-        return value
+        if field.choices:
+            values_dct = {item[0]: item[1] for item in field.choices}
+            return values_dct.get(value, '-')
+
+        else:
+            return value
 
     def _process_date(self, field: models.Field, value: str) -> str:
         if value == '-':

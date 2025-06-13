@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.4.5"
+    hooks:
+      - id: ruff
+        args: ["--fix", "--exit-non-zero-on-fix", "."]
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["-m", "3"]
+ci:
+  skip: []
+  submodules: false

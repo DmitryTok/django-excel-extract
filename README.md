@@ -46,6 +46,14 @@ You must use the Excel class to generate and export an Excel file.
 - **bool_true** (`str`, optional) — Text representation for boolean `True` values (default: `'True'`).
 - **bool_false** (`str`, optional) — Text representation for boolean `False` values (default: `'False'`).
 
+### ORM
+
+**Avaliable ORM methods**:
+
+- .get()
+- .filter()
+- .values()
+
 ### Examples
 
 `models.py`
