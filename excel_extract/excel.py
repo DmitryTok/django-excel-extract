@@ -1,11 +1,32 @@
-from django.db import models
-from excel_extract.processors import Processor
-from excel_extract.response import ExcelResponse
 from collections.abc import Iterable
 from typing import Generator
 
+from django.db import models
+
+from excel_extract.processors import Processor
+from excel_extract.response import ExcelResponse
+
 
 class Excel:
+    """
+    A class to generate Excel responses from Django model querysets.
+
+    Attributes:
+        model (models.Model): The Django model class.
+        queryset (models.QuerySet or iterable): The queryset or iterable data to be processed.
+        file_name (str): The name of the resulting Excel file.
+        title (str): The title used in the Excel sheet.
+        exclude (set[str]): Set of field names to exclude from output.
+        date_format (str): Optional date formatting string.
+        date_time_format (str): Optional datetime formatting string.
+        bool_true (str): Representation for boolean `True`.
+        bool_false (str): Representation for boolean `False`.
+        fields (list): List of model fields used in export.
+        fields_map (dict): Mapping of field names to verbose names.
+        type_field (dict): Mapping of field names to field objects.
+        verbose_name_fields (list): List of verbose names of fields used in output.
+        processor (Processor): An instance of Processor to format field values.
+    """
 
     def __init__(
         self,
@@ -19,6 +40,20 @@ class Excel:
         bool_true: str = None,
         bool_false: str = None,
     ) -> None:
+        """
+        Initializes the Excel export helper.
+
+        Args:
+            model (models.Model): The Django model class.
+            queryset (models.QuerySet): The queryset or iterable of model instances.
+            file_name (str): The filename to be used in the Excel download.
+            title (str): Title of the Excel document.
+            exclude (list[str], optional): List of field names to exclude.
+            date_format (str, optional): Format string for date fields.
+            date_time_format (str, optional): Format string for datetime fields.
+            bool_true (str, optional): Representation for boolean `True` values.
+            bool_false (str, optional): Representation for boolean `False` values.
+        """
         self.model = model
         self.queryset = self._get_queryset(queryset)
         self.exclude = set(exclude or [])
@@ -61,6 +96,15 @@ class Excel:
         )
 
     def _get_queryset(self, queryset):
+        """
+        Normalizes the input to ensure it's iterable.
+
+        Args:
+            queryset: A Django QuerySet or other iterable data.
+
+        Returns:
+            An iterable version of the queryset or a list containing a single item.
+        """
         if isinstance(queryset, models.QuerySet):
             return queryset
 
@@ -72,9 +116,21 @@ class Excel:
         return [queryset]
 
     def get_fields(self):
+        """
+        Returns the list of verbose names of the fields used in the export.
+
+        Returns:
+            list[str]: List of verbose field names.
+        """
         return [item for item in self.verbose_name_fields]
 
     def get_data_frame(self) -> Generator[list[str], None, None]:
+        """
+        Processes the queryset and yields rows of formatted values.
+
+        Returns:
+            Generator[list[str]]: A generator yielding rows of string values for Excel.
+        """
         data = []
 
         for item in self.queryset:
@@ -126,6 +182,12 @@ class Excel:
         return data
 
     def to_excel(self):
+        """
+        Creates an ExcelResponse object from the processed data.
+
+        Returns:
+            HttpResponse: A downloadable Excel file response.
+        """
         excel_response = ExcelResponse()
 
         return excel_response.excel_response(

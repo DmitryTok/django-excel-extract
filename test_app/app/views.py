@@ -1,7 +1,7 @@
+from app.models import Report
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from app.models import Report
 from excel_extract.excel import Excel
 
 

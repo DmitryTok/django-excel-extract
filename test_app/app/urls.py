@@ -1,11 +1,11 @@
-from django.urls import path
 from app.views import (
-    index,
-    extract_excel_get,
     extract_excel_filter,
+    extract_excel_get,
     extract_excel_values,
     extract_excel_values_list,
+    index
 )
+from django.urls import path
 
 urlpatterns = [
     path('index/', view=index, name='index'),

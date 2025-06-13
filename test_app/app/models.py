@@ -1,7 +1,8 @@
-from django.db import models
-from enum import Enum
 import datetime as dt
+from enum import Enum
+
 import pytz
+from django.db import models
 
 
 class StatusReport(Enum):

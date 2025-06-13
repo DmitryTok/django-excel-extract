@@ -1,7 +1,9 @@
 import io
-import pandas as pd
 
+import pandas as pd
 from django.http import HttpResponse
+
+DEBUG = True
 
 
 class ExcelResponse(HttpResponse):

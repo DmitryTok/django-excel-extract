@@ -1,6 +1,7 @@
 import pytest
-from excel_extract import Excel
 from app.models import Report
+
+from excel_extract import Excel
 
 # @pytest.fixtrure
 # def data():
