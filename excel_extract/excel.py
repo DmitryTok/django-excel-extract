@@ -131,7 +131,7 @@ class Excel:
         Returns:
             Generator[list[str]]: A generator yielding rows of string values for Excel.
         """
-        data = []
+        # data = []
 
         for item in self.queryset:
             values = []
@@ -155,8 +155,6 @@ class Excel:
 
                         values.append(value)
 
-                data.append(values)
-
             elif isinstance(item, tuple):
                 pass
 
@@ -177,9 +175,9 @@ class Excel:
 
                     values.append(value)
 
-                data.append(values)
+            yield values
 
-        return data
+        # return data
 
     def to_excel(self):
         """
@@ -190,9 +188,11 @@ class Excel:
         """
         excel_response = ExcelResponse()
 
+        data = list(self.get_data_frame())
+
         return excel_response.excel_response(
             file_name=self.file_name,
             title=self.title,
-            data=self.get_data_frame(),
+            data=data,
             columns=self.get_fields(),
         )
