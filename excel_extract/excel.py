@@ -35,6 +35,7 @@ class Excel:
         file_name: str = 'file_name',
         title: str = 'title',
         exclude: list[str] = None,
+        annotation_fields_map: dict[str, str] = None,
         date_format: str = None,
         date_time_format: str = None,
         bool_true: str = None,
@@ -57,6 +58,7 @@ class Excel:
         self.model = model
         self.queryset = self._get_queryset(queryset)
         self.exclude = set(exclude or [])
+        self.annotation_fields_map = annotation_fields_map or {}
         self.file_name = file_name
         self.title = title
         self.date_format = date_format
@@ -77,6 +79,7 @@ class Excel:
             and not (field.many_to_many and field.auto_created)
             and field.name not in self.exclude
         ]
+
         self.fields_map = {
             field.name: field.verbose_name
             for field in self.fields
@@ -131,32 +134,34 @@ class Excel:
         Returns:
             Generator[list[str]]: A generator yielding rows of string values for Excel.
         """
-        # data = []
 
         for item in self.queryset:
             values = []
 
             if isinstance(item, dict):
                 for field, value in item.items():
-                    if field in self.fields_map:
+
+                    if field not in self.fields_map:
+                        get_annotated_field = self.annotation_fields_map.get(
+                            field
+                        )
+                        self.fields_map[field] = get_annotated_field
                         field_obj = self.fields_map[field]
 
-                        if field_obj not in self.verbose_name_fields:
-                            self.verbose_name_fields.append(field_obj)
+                    else:
+                        field_obj = self.fields_map[field]
 
-                        processor = self.processor.field_processors.get(
-                            type(self.type_field.get(field))
-                        )
+                    if field_obj not in self.verbose_name_fields:
+                        self.verbose_name_fields.append(field_obj)
 
-                        if processor:
-                            value = processor(
-                                self.type_field.get(field), value
-                            )
+                    processor = self.processor.field_processors.get(
+                        type(self.type_field.get(field))
+                    )
 
-                        values.append(value)
+                    if processor:
+                        value = processor(self.type_field.get(field), value)
 
-            elif isinstance(item, tuple):
-                pass
+                    values.append(value)
 
             else:
                 for field in self.fields:
@@ -176,8 +181,6 @@ class Excel:
                     values.append(value)
 
             yield values
-
-        # return data
 
     def to_excel(self):
         """
