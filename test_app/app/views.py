@@ -1,6 +1,7 @@
 from app.models import Report
-from django.http import HttpResponse
+from django.db.models import ExpressionWrapper, F, fields
 from django.shortcuts import render
+from django.utils.timezone import now
 
 from excel_extract.excel import Excel
 
@@ -44,9 +45,21 @@ def extract_excel_filter(request):
 
 
 def extract_excel_values(request):
-    queryset = Report.objects.values(
-        'id', 'report_num', 'status_report', 'type_report', 'priority'
+    queryset = Report.objects.annotate(
+        days_passed=ExpressionWrapper(
+            now() - F('created_at'),
+            output_field=fields.DurationField(),
+        )
+    ).values(
+        'id',
+        'report_num',
+        'status_report',
+        'type_report',
+        'priority',
+        'days_passed',
     )
+
+    aggregation_field_names = {'days_passed': 'Days Passed'}
 
     exclude = ['id']
 
@@ -57,28 +70,7 @@ def extract_excel_values(request):
         title='Report',
         exclude=exclude,
         date_time_format='%d/%m/%Y',
+        annotation_fields_map=aggregation_field_names,
     )
 
     return excel.to_excel()
-
-
-def extract_excel_values_list(request):
-    queryset = Report.objects.values_list(
-        'report_num', 'status_report', 'type_report', 'priority'
-    )
-
-    exclude = ['id']
-
-    excel = Excel(
-        model=Report,
-        queryset=queryset,
-        file_name='report_values_list',
-        title='Report',
-        exclude=exclude,
-        date_time_format='%d/%m/%Y',
-    )
-
-    print(excel.get_data_frame())
-
-    return HttpResponse('Test')
-    # return excel.to_excel()
