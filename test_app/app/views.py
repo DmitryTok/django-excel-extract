@@ -1,4 +1,4 @@
-from app.models import Report
+from app.models import Priority, Report
 from django.db.models import ExpressionWrapper, F, fields
 from django.shortcuts import render
 from django.utils.timezone import now
@@ -28,7 +28,7 @@ def extract_excel_get(request):
 
 
 def extract_excel_filter(request):
-    queryset = Report.objects.filter(id=1)
+    queryset = Report.objects.filter(priority=Priority.HIGH)
 
     exclude = ['id']
 
