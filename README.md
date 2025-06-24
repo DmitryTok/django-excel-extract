@@ -45,6 +45,7 @@ You must use the Excel class to generate and export an Excel file.
 - **date_time_format** (`str`, optional) — Format string for datetime fields (e.g., `'%d/%m/%Y %H:%M'`).
 - **bool_true** (`str`, optional) — Text representation for boolean `True` values (default: `'True'`).
 - **bool_false** (`str`, optional) — Text representation for boolean `False` values (default: `'False'`).
+- **annotation_fields_map** (`dict[str, str]`, optional) - Representation annotate fields in to human readable version
 
 ### ORM
 
@@ -53,6 +54,7 @@ You must use the Excel class to generate and export an Excel file.
 - .get()
 - .filter()
 - .values()
+- .annotate()
 
 ### Examples
 
@@ -160,6 +162,8 @@ class Report(models.Model):
 
 `views.py`
 
+### GET
+
 ```python
 from django.shortcuts import render
 
@@ -171,19 +175,76 @@ def index(request):
     return render(request, 'index.html', {})
 
 
-def extract_excel(request):
-    queryset = Report.objects.all()
+def extract_excel_get(request):
+    queryset = Report.objects.get(id=1)
+
     exclude = ['id']
 
     excel = Excel(
         model=Report,
         queryset=queryset,
-        file_name='report',
+        file_name='report_get',
         title='Report',
         exclude=exclude,
-        date_time_format='%d/%m/%Y %H:%M',
+        date_time_format='%d/%m/%Y',
     )
 
     return excel.to_excel()
 
+```
+
+### FILTER
+
+```python
+def extract_excel_filter(request):
+    queryset = Report.objects.filter(id=1)
+
+    exclude = ['id']
+
+    excel = Excel(
+        model=Report,
+        queryset=queryset,
+        file_name='report_filter',
+        title='Report',
+        exclude=exclude,
+        date_time_format='%d/%m/%Y',
+    )
+
+    return excel.to_excel()
+
+```
+
+### VALUES + ANNOTATE
+
+```python
+def extract_excel_values(request):
+    queryset = Report.objects.annotate(
+        days_passed=ExpressionWrapper(
+            now() - F('created_at'),
+            output_field=fields.DurationField(),
+        )
+    ).values(
+        'id',
+        'report_num',
+        'status_report',
+        'type_report',
+        'priority',
+        'days_passed',
+    )
+
+    aggregation_field_names = {'days_passed': 'Days Passed'}
+
+    exclude = ['id']
+
+    excel = Excel(
+        model=Report,
+        queryset=queryset,
+        file_name='report_values',
+        title='Report',
+        exclude=exclude,
+        date_time_format='%d/%m/%Y',
+        annotation_fields_map=aggregation_field_names,
+    )
+
+    return excel.to_excel()
 ```
