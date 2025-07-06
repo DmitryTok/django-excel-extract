@@ -137,3 +137,7 @@ Result:
 - Simple integration into Django views.
 
 ---
+
+#### Open source is love, and coffee is fuel. If my code helped you out, send a coffee my way ☕😉😎
+
+https://buymeacoffee.com/dmitrytok

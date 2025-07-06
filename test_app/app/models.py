@@ -43,7 +43,7 @@ class Category(models.Model):
         return self.name
 
 
-class Tags(models.Model):
+class Tag(models.Model):
     name = models.CharField(max_length=255, verbose_name='Tag Name')
 
     class Meta:
@@ -76,7 +76,7 @@ class Report(models.Model):
         verbose_name='Category',
     )
     tag = models.ManyToManyField(
-        Tags,
+        Tag,
         related_name='report_tag',
         verbose_name='Tags',
     )
