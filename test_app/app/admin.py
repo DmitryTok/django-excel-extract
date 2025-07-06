@@ -1,4 +1,4 @@
-from app.models import Category, Report, Tags
+from app.models import Category, Report, Tag
 from django.contrib import admin
 
 
@@ -8,4 +8,4 @@ class ReportAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Category)
-admin.site.register(Tags)
+admin.site.register(Tag)
