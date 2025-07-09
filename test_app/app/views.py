@@ -1,4 +1,3 @@
-
 from app.models import Priority, Report
 from django.db.models import ExpressionWrapper, F, fields
 from django.shortcuts import render
@@ -56,7 +55,6 @@ def extract_excel_values(request):
             output_field=fields.DurationField(),
         )
     ).values(
-        'id',
         'report_num',
         'status_report',
         'type_report',
@@ -66,14 +64,11 @@ def extract_excel_values(request):
 
     aggregation_field_names = {'days_passed': 'Days Passed'}
 
-    exclude = ['id']
-
     excel = Excel(
         model=Report,
         queryset=queryset,
         file_name='report_values',
         title='Report',
-        exclude=exclude,
         date_time_format='%d/%m/%Y',
         annotation_fields_map=aggregation_field_names,
     )

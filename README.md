@@ -96,7 +96,6 @@ def extract_excel_values(request):
             output_field=fields.DurationField(),
         )
     ).values(
-        'id',
         'report_num',
         'status_report',
         'type_report',
@@ -106,7 +105,6 @@ def extract_excel_values(request):
 
     aggregation_field_names = {'days_passed': 'Days Passed'}
 
-    exclude = ['id']
 
     excel = Excel(
         model=Report,
