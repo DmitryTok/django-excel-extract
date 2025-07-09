@@ -1,6 +1,3 @@
-import cProfile
-import io
-import pstats
 
 from app.models import Priority, Report
 from django.db.models import ExpressionWrapper, F, fields
@@ -15,9 +12,6 @@ def index(request):
 
 
 def extract_excel_get(request):
-    profiler = cProfile.Profile()
-    profiler.enable()
-
     queryset = Report.objects.select_related('category').prefetch_related(
         'tag'
     )
@@ -34,14 +28,6 @@ def extract_excel_get(request):
     )
 
     response = excel.to_excel()
-
-    profiler.disable()
-
-    s = io.StringIO()
-    ps = pstats.Stats(profiler, stream=s).sort_stats('cumulative')
-    ps.print_stats(30)
-
-    print(s.getvalue())
 
     return response
 
