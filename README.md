@@ -1,6 +1,6 @@
 # django-excel-extract
 
-![PyPI download month](https://img.shields.io/pypi/dm/django-excel-extract.svg)
+[![Downloads](https://static.pepy.tech/badge/django-excel-extract/month)](https://pepy.tech/project/django-excel-extract)
 ![PyPI version](https://badge.fury.io/py/django-excel-extract.svg)
 ![Python versions](https://img.shields.io/badge/python-%3E=3.9-brightgreen)
 ![Django Versions](https://img.shields.io/badge/django-%3E=4.2-brightgreen)
