@@ -36,6 +36,8 @@ pip install django-excel-extract
 `Extract Report Get` button contains:
 
 ```python
+from excel_extract import Excel
+
 def extract_excel_get(request):
     queryset = Report.objects.get(id=1)
 
@@ -62,6 +64,8 @@ Result:
 `Extract Report Filter` button contains:
 
 ```python
+from excel_extract import Excel
+
 def extract_excel_filter(request):
     queryset = Report.objects.filter(priority=Priority.HIGH)
 
@@ -89,6 +93,8 @@ Result:
 `Extract Report Values` button contains:
 
 ```python
+from excel_extract import Excel
+
 def extract_excel_values(request):
     queryset = Report.objects.annotate(
         days_passed=ExpressionWrapper(
